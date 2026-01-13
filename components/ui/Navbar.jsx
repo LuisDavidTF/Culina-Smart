@@ -6,9 +6,18 @@ import { useRouter } from 'next/navigation';
 
 // Context
 import { useAuth } from '@context/AuthContext';
+import { useSettings } from '@context/SettingsContext';
 
 // Icons
 import { LogInIcon, LogOutIcon, PlusIcon, UserIcon } from './Icons';
+
+// Simple Cog Icon for Settings
+const CogIcon = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
 
 // Simple Menu Icon for internal use
 const MenuIcon = ({ className }) => (
@@ -25,6 +34,7 @@ const XIcon = ({ className }) => (
 
 export function Navbar() {
   const { isAuthenticated, logout, user } = useAuth();
+  const { t } = useSettings();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -48,7 +58,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="bg-white shadow-xs sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-900 shadow-xs sticky top-0 z-50 transition-colors duration-300 border-b border-gray-100 dark:border-gray-800">
       <nav
         className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
         aria-label="Main Navigation"
@@ -57,8 +67,8 @@ export function Navbar() {
 
           {/* Logo / Home Link */}
           <Link href="/" onClick={handleLogoClick} className="shrink-0 flex items-center gap-2">
-            <span className="text-2xl font-bold text-emerald-600 tracking-tight">
-              SmartRecipe
+            <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-500 tracking-tight">
+              Culina Smart
             </span>
           </Link>
 
@@ -66,26 +76,34 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <span className="text-sm font-medium text-gray-700">
-                  Hola, {getDisplayName()}
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  {t.nav.greeting} {getDisplayName()}
                 </span>
 
                 <Link
                   href="/create-recipe"
                   className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm"
-                  aria-label="Crear nueva receta"
+                  aria-label={t.nav.create}
                 >
                   <PlusIcon className="w-4 h-4 mr-2" />
-                  Crear Receta
+                  {t.nav.create}
+                </Link>
+
+                <Link
+                  href="/settings"
+                  className="p-2 text-gray-500 hover:text-emerald-600 transition-colors"
+                  aria-label={t.nav.settings}
+                >
+                  <CogIcon className="w-5 h-5" />
                 </Link>
 
                 <button
                   onClick={logout}
-                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 border border-gray-200 transition-colors"
-                  aria-label="Cerrar sesión"
+                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 border border-gray-200 transition-colors dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 dark:hover:text-white"
+                  aria-label={t.nav.logout}
                 >
                   <LogOutIcon className="w-4 h-4 mr-2" />
-                  Salir
+                  {t.nav.logout}
                 </button>
               </>
             ) : (
@@ -96,7 +114,7 @@ export function Navbar() {
                   className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
                 >
                   <LogInIcon className="w-4 h-4 mr-2" />
-                  Acceder
+                  {t.nav.login}
                 </Link>
 
                 <Link
@@ -104,7 +122,7 @@ export function Navbar() {
                   className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors"
                 >
                   <UserIcon className="w-4 h-4 mr-2" />
-                  Registrarse
+                  {t.nav.register}
                 </Link>
               </>
             )}
@@ -133,7 +151,7 @@ export function Navbar() {
               {isAuthenticated ? (
                 <>
                   <div className="px-2 py-2 text-sm font-bold text-gray-900 border-b border-gray-50 mb-2">
-                    Hola, {getDisplayName()}
+                    {t.nav.greeting} {getDisplayName()}
                   </div>
                   <Link
                     href="/create-recipe"
@@ -141,7 +159,16 @@ export function Navbar() {
                     className="flex items-center text-base font-medium px-3 py-2 rounded-md text-emerald-700 bg-emerald-50"
                   >
                     <PlusIcon className="w-5 h-5 mr-3" />
-                    Crear Receta
+                    {t.nav.create}
+                  </Link>
+
+                  <Link
+                    href="/settings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-50"
+                  >
+                    <CogIcon className="w-5 h-5 mr-3" />
+                    {t.nav.settings}
                   </Link>
 
                   <button
@@ -149,7 +176,7 @@ export function Navbar() {
                     className="flex items-center w-full text-base font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-50"
                   >
                     <LogOutIcon className="w-5 h-5 mr-3" />
-                    Cerrar Sesión
+                    {t.nav.logout}
                   </button>
                 </>
               ) : (

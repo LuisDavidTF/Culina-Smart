@@ -31,9 +31,9 @@ export const useApiClient = () => {
     for (let i = 0; i <= retries; i++) {
       try {
         const response = await fetch(endpoint, config);
-        
+
         if (response.status === 204) {
-          return null; 
+          return null;
         }
 
         const data = await response.json();
@@ -42,20 +42,38 @@ export const useApiClient = () => {
           logout();
           throw new Error('Tu sesión ha expirado. Por favor, inicia sesión de nuevo.');
         }
-        
+
         if (!response.ok) {
-          let errorMessage = 'Error en la solicitud a la API'; 
+          let errorMessage = 'Error en la solicitud a la API';
           if (data.errors && Array.isArray(data.errors) && data.errors[0]?.message) {
-              errorMessage = data.errors[0].message;
-          } 
+            errorMessage = data.errors[0].message;
+          }
           throw new Error(errorMessage);
         }
 
         return data;
 
       } catch (error) {
-        const isNetworkError = error.message === 'Failed to fetch' || error.name === 'SyntaxError';
-        
+        const isNetworkError = error.message === 'Failed to fetch' || error.name === 'SyntaxError' || error.message.includes('Network request failed');
+        // Check if we are offline logic (browser support varies, but helps)
+        const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false;
+
+        // Decide if we should try fallback
+        if (isNetworkError || isOffline || error.message === 'Error en la solicitud a la API') {
+
+          // --- MANUAL OFFLINE FALLBACK ---
+          if (typeof window !== 'undefined' && 'caches' in window) {
+            try {
+              const cachedResponse = await caches.match(endpoint);
+              if (cachedResponse) {
+                return await cachedResponse.json();
+              }
+            } catch (cacheErr) {
+              console.warn("[Offline Fallback] Cache check failed:", cacheErr);
+            }
+          }
+        }
+
         if (isNetworkError) {
           if (i === retries) {
             throw new Error('Error de Red/CORS. No se pudo conectar a la API.');
@@ -63,7 +81,7 @@ export const useApiClient = () => {
           await sleep(delay);
           delay *= 2;
         } else {
-          throw error; 
+          throw error;
         }
       }
     }
@@ -75,14 +93,14 @@ export const useApiClient = () => {
       const queryString = query ? `?${query}` : '';
       return request(`/api/recipes${queryString}`);
     },
-    
+
     getRecipeById: (id) => request(`/api/recipes/${id}`),
-    
+
     createRecipe: (recipeData) => request('/api/recipes', { body: recipeData, method: 'POST' }),
-    
+
     updateRecipe: (id, recipeData) => request(`/api/recipes/${id}`, { body: recipeData, method: 'PATCH' }),
-    
+
     deleteRecipe: (id) => request(`/api/recipes/${id}`, { method: 'DELETE' }),
-    
+
   }), [request]);
 };

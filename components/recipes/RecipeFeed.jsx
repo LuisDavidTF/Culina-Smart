@@ -1,10 +1,12 @@
 'use client';
 
+// ... imports
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRecipeFeed } from '@hooks/useRecipeFeed';
 import { useApiClient } from '@hooks/useApiClient';
 import { useToast } from '@context/ToastContext';
+import { useSettings } from '@context/SettingsContext';
 
 // Components
 import { RecipeCard } from '@components/recipes/RecipeCard';
@@ -14,7 +16,7 @@ import { Spinner } from '@components/ui/Spinner';
 import { LoadingState } from '@components/ui/LoadingState';
 import { ErrorState } from '@components/ui/ErrorState';
 
-export function RecipeFeed() {
+export function RecipeFeed({ initialData = null }) {
   // Use our new custom hook for data logic
   const {
     recipes,
@@ -25,26 +27,32 @@ export function RecipeFeed() {
     isLoadingMore,
     fetchMoreRecipes,
     fetchInitialRecipes,
-    removeRecipe
-  } = useRecipeFeed();
+    removeRecipe,
+    isErrorLoadingMore,
+    retryLoadMore
+  } = useRecipeFeed({ initialData });
 
   const [deleteModalState, setDeleteModalState] = useState({ isOpen: false, recipe: null });
 
   const api = useApiClient();
   const router = useRouter();
   const { showToast } = useToast();
+  const { t } = useSettings();
 
   // Intersection Observer for Infinite Scroll
   const observer = useRef(null);
   const sentinelRef = useRef(null);
 
   useEffect(() => {
-    if (status !== 'success' || !hasMore) return;
+    // Stop observing if status is bad, no more items, OR if we hit an error (manual retry needed)
+    if (status !== 'success' || !hasMore || isErrorLoadingMore) return;
 
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         fetchMoreRecipes();
       }
+    }, {
+      rootMargin: '200px', // Trigger fetch 200px before bottom
     });
 
     const currentSentinel = sentinelRef.current;
@@ -53,7 +61,7 @@ export function RecipeFeed() {
     return () => {
       if (observer.current && currentSentinel) observer.current.unobserve(currentSentinel);
     };
-  }, [status, hasMore, fetchMoreRecipes]);
+  }, [status, hasMore, fetchMoreRecipes, isErrorLoadingMore]);
 
   // Actions
   const handleEdit = (recipe) => router.push(`/edit-recipe/${recipe.id}`);
@@ -63,11 +71,11 @@ export function RecipeFeed() {
     if (!deleteModalState.recipe) return;
     try {
       await api.deleteRecipe(deleteModalState.recipe.id);
-      showToast('Receta eliminada correctamente', 'success');
+      showToast(t.feed.deleted, 'success');
       removeRecipe(deleteModalState.recipe.id);
       setDeleteModalState({ isOpen: false, recipe: null });
     } catch (error) {
-      showToast(error.message || 'Error al eliminar', 'error');
+      showToast(error.message || 'Error', 'error');
     }
   };
 
@@ -85,22 +93,34 @@ export function RecipeFeed() {
       {/* Header Section */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 leading-tight">Descubre Recetas</h1>
-          <p className="text-lg text-gray-600 mt-1">
-            Explora las mejores ideas para tu próxima comida.
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{t.feed.title}</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
+            {t.feed.subtitle}
           </p>
         </div>
+
+        {/* Manual Refresh Action */}
+        <Button
+          variant="secondary"
+          onClick={fetchInitialRecipes}
+          className="flex items-center gap-2 self-start sm:self-end text-sm"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          {t.feed.update}
+        </Button>
       </div>
 
       {/* Content Grid */}
       {recipes.length === 0 ? (
         <div className="text-center py-20 bg-card rounded-xl border border-dashed border-border shadow-sm">
-          <p className="text-muted-foreground text-lg mb-4">No hay recetas disponibles por el momento.</p>
+          <p className="text-muted-foreground text-lg mb-4">{t.feed.empty}</p>
           <Button
             className="mt-2"
             onClick={() => router.push('/create-recipe')}
           >
-            Crear mi primera receta
+            {t.feed.createFirst}
           </Button>
         </div>
       ) : (
@@ -117,8 +137,21 @@ export function RecipeFeed() {
         </div>
       )}
 
-      {/* Pagination Sentinel */}
-      <div ref={sentinelRef} aria-hidden="true" className="h-4 w-full" />
+      {/* Pagination Sentinel - Only show if NO error and NOT loading */}
+      {/* Hiding it while loading ensures that when it reappears, it triggers a FRESH intersection event if still visible */}
+      {!isErrorLoadingMore && !isLoadingMore && hasMore && (
+        <div ref={sentinelRef} aria-hidden="true" className="h-4 w-full" />
+      )}
+
+      {/* Manual Retry Button on Error */}
+      {isErrorLoadingMore && (
+        <div className="flex flex-col items-center justify-center py-8 gap-3">
+          <p className="text-sm text-red-500">{t.feed.error}</p>
+          <Button onClick={retryLoadMore} variant="outline" className="text-sm">
+            {t.feed.retry}
+          </Button>
+        </div>
+      )}
 
       {/* Loading More Indicator */}
       {isLoadingMore && (
@@ -128,9 +161,9 @@ export function RecipeFeed() {
       )}
 
       {/* End of Feed Message */}
-      {!hasMore && recipes.length > 0 && (
+      {!hasMore && !isErrorLoadingMore && recipes.length > 0 && (
         <div className="text-center py-12 border-t mt-12 border-gray-100">
-          <p className="text-gray-400 text-sm">Has llegado al final de la lista.</p>
+          <p className="text-gray-400 text-sm">{t.feed.end}</p>
         </div>
       )}
 
@@ -138,25 +171,24 @@ export function RecipeFeed() {
       <Modal
         isOpen={deleteModalState.isOpen}
         onClose={() => setDeleteModalState({ isOpen: false, recipe: null })}
-        title="Eliminar Receta"
+        title={t.feed.deleteTitle}
       >
         <div className="space-y-4">
-          <p className="text-gray-600">
-            ¿Estás seguro de que deseas eliminar <strong>{deleteModalState.recipe?.name}</strong>?
-            Esta acción no se puede deshacer.
+          <p className="text-gray-600 dark:text-gray-300">
+            {t.feed.deleteConfirm} <strong>{deleteModalState.recipe?.name}</strong>?
           </p>
           <div className="flex justify-end gap-3">
             <Button
               variant="ghost"
               onClick={() => setDeleteModalState({ isOpen: false, recipe: null })}
             >
-              Cancelar
+              {t.feed.cancel}
             </Button>
             <Button
               variant="danger"
               onClick={confirmDelete}
             >
-              Sí, eliminar
+              {t.feed.confirmDelete}
             </Button>
           </div>
         </div>

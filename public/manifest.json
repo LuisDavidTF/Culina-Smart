@@ -1,6 +1,6 @@
 {
-    "name": "Smart Recipe Planner",
-    "short_name": "RecipePlanner",
+    "name": "Culina Smart",
+    "short_name": "Culina",
     "description": "Planifica tus comidas de manera inteligente y eficiente.",
     "start_url": "/",
     "display": "standalone",

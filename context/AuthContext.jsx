@@ -2,31 +2,54 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { API_BASE_URL } from '@utils/constants';
+import { CacheManager } from '@utils/cacheManager';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
 
   const checkUserSession = useCallback(async () => {
     try {
-      const res = await fetch('/api/me'); 
+      const res = await fetch('/api/me');
       if (!res.ok) {
         throw new Error('No autenticado');
       }
       const { user } = await res.json();
       setUser(user);
+
+      // SECURITY: Only store safe fields offline. No tokens, no passwords.
+      const safeUser = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        profile_photo: user.profile_photo_url || user.profile_photo
+      };
+      localStorage.setItem('culina_user_session', JSON.stringify(safeUser));
     } catch (error) {
-      setUser(null);
+      console.warn("Session check failed:", error);
+      // Offline Persistence: Try to restore session
+      if (typeof window !== 'undefined') {
+        const cachedUser = localStorage.getItem('culina_user_session');
+        if (cachedUser) {
+          console.log("Restoring user session from cache");
+          setUser(JSON.parse(cachedUser));
+          // Don't clear error if we want to show 'Offline Mode' indicator
+        } else {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
     checkUserSession();
-  }, [checkUserSession]); 
+  }, [checkUserSession]);
 
   const login = useCallback(async (email, password) => {
     const res = await fetch('/api/login', {
@@ -40,35 +63,51 @@ export const AuthProvider = ({ children }) => {
     if (!res.ok) {
       throw new Error(data.message || 'Error al iniciar sesión');
     }
-    
+
     setUser(data.user);
+    // SECURITY: Only store safe fields offline.
+    const safeUser = {
+      id: data.user.id,
+      name: data.user.name,
+      email: data.user.email,
+      profile_photo: data.user.profile_photo_url || data.user.profile_photo
+    };
+    localStorage.setItem('culina_user_session', JSON.stringify(safeUser));
     return data.user;
-  }, []); 
+  }, []);
 
   const register = useCallback(async (name, email, password, passwordConfirmation) => {
-    const res = await fetch(`${API_BASE_URL}/auth/register`, { 
-       method: 'POST',
-       headers: { 'Content-Type': 'application/json' },
-       body: JSON.stringify({ name, email, password, password_confirmation: passwordConfirmation }),
+    const res = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, password_confirmation: passwordConfirmation }),
     });
-    
+
     const data = await res.json();
     if (!res.ok) {
       const errorMsg = data.message || data.error || 'Error al registrar';
       throw new Error(errorMsg);
     }
     return data;
-  }, []); 
+  }, []);
+
+
+  // ...
 
   const logout = useCallback(async () => {
     try {
       await fetch('/api/logout', { method: 'POST' });
     } catch (error) {
     } finally {
-      setUser(null); 
+      setUser(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('culina_user_session');
+        // PRIVACY: Clear ALL recipe caches (feed and visited) on logout
+        CacheManager.clearAll();
+      }
       window.location.assign('/login');
     }
-  }, []); 
+  }, []);
 
   return (
     <AuthContext.Provider value={{ isAuthenticated: !!user, user, isLoading, login, register, logout }}>

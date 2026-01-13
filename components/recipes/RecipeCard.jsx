@@ -4,10 +4,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@context/AuthContext';
+import { useSettings } from '@context/SettingsContext';
 import { ClockIcon, EditIcon, TrashIcon, UserIcon } from '@components/ui/Icons';
 
 export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
   const { user } = useAuth();
+  const { t } = useSettings();
   // Safe accessor for user ID comparison
   const isOwner = user && recipe.user && user.id === recipe.user.id;
 
@@ -20,7 +22,7 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
   const [imgSrc, setImgSrc] = useState(imageUrl);
 
   return (
-    <div className="group bg-card rounded-2xl border border-gray-100/50 shadow-sm hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300 flex flex-col h-full overflow-hidden">
+    <div className="group bg-card dark:bg-gray-800 rounded-2xl border border-gray-100/50 dark:border-gray-700 shadow-sm hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300 flex flex-col h-full overflow-hidden">
       {/* Image Container */}
       <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
         <Image
@@ -71,22 +73,22 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-grow bg-white relative">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight group-hover:text-emerald-600 transition-colors" title={recipe.name}>
+      <div className="p-5 flex flex-col flex-grow bg-white dark:bg-gray-800 relative transition-colors duration-300">
+        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-200 mb-2 leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" title={recipe.name}>
           {recipe.name}
         </h3>
 
-        <p className="text-gray-500 text-sm line-clamp-2 mb-4 flex-grow leading-relaxed font-light">
+        <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4 flex-grow leading-relaxed font-light">
           {recipe.description || 'Sin descripción disponible.'}
         </p>
 
         {/* Footer Actions */}
-        <div className="pt-4 mt-auto border-t border-gray-50">
+        <div className="pt-4 mt-auto border-t border-gray-50 dark:border-gray-700">
           <Link
             href={viewHref}
-            className="w-full inline-flex items-center justify-center bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn"
+            className="w-full inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn"
           >
-            Ver Receta Completa
+            {t.feed.view}
             <svg className="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>

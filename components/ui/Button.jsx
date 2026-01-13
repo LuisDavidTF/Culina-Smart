@@ -3,11 +3,13 @@ import React from 'react';
 export const Button = ({ children, onClick, type = 'button', variant = 'primary', isLoading = false, className = '', ...props }) => {
   const baseClasses = "flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-xs text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-150 ease-in-out";
   const variants = {
-    primary: "bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500",
-    danger: "bg-red-600 hover:bg-red-700 focus:ring-red-500",
-    secondary: "bg-gray-400 text-gray-800 hover:bg-gray-500 focus:ring-gray-400",
+    primary: "bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500 text-white",
+    danger: "bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white",
+    secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 focus:ring-gray-400",
+    ghost: "bg-transparent text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200",
+    outline: "border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800",
   };
-  
+
   return (
     <button
       type={type}
