@@ -9,6 +9,31 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [
+      // 1. App Pages (Navigation) - NetworkFirst ensures we get latest app shell if online, fallback to cache if offline.
+      {
+        urlPattern: ({ request }) => request.mode === 'navigate',
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'pages',
+          expiration: {
+            maxEntries: 200,
+          },
+          networkTimeoutSeconds: 3, // Fallback to cache quickly if network is slow
+        },
+      },
+      // 2. Static Resources (JS, CSS, Fonts) - CacheFirst for performance
+      {
+        urlPattern: /\.(?:js|css|woff2?|eot|ttf|otf)$/i,
+        handler: 'StaleWhileRevalidate',
+        options: {
+          cacheName: 'static-assets',
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 24 * 60 * 60 * 365, // 1 year
+          },
+        },
+      },
+      // 3. API - Recipes Feed (StaleWhileRevalidate)
       {
         urlPattern: /^https?.+\/api\/recipes.*/i,
         handler: 'StaleWhileRevalidate',
@@ -20,9 +45,10 @@ const withPWA = require("@ducanh2912/next-pwa").default({
           },
         },
       },
+      // 4. API - Others (NetworkFirst)
       {
         urlPattern: /^https?.+\/api\/.*/i,
-        handler: 'NetworkFirst', // Safer for other APIs
+        handler: 'NetworkFirst',
         options: {
           cacheName: 'api-others',
           expiration: {
@@ -32,6 +58,7 @@ const withPWA = require("@ducanh2912/next-pwa").default({
           networkTimeoutSeconds: 10,
         },
       },
+      // 5. Images (CacheFirst)
       {
         urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
         handler: 'CacheFirst',
