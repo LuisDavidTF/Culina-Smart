@@ -14,16 +14,15 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [
-      // 1. App Pages (Navigation) - NetworkFirst ensures we get latest app shell if online, fallback to cache if offline.
+      // 1. App Pages (Navigation) - StaleWhileRevalidate for INSTANT load (Cache First feel, update in background)
       {
         urlPattern: ({ request }) => request.mode === 'navigate',
-        handler: 'NetworkFirst',
+        handler: 'StaleWhileRevalidate',
         options: {
           cacheName: 'pages',
           expiration: {
             maxEntries: 200,
           },
-          networkTimeoutSeconds: 2, // 2s timeout for faster offline detection on flaky networks
         },
       },
       // 2. Static Resources (JS, CSS, Fonts) - CacheFirst for performance
