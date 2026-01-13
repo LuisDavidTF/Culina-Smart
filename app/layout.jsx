@@ -23,11 +23,6 @@ export const metadata = {
   },
   description: "Planifica tus comidas de manera inteligente y eficiente.",
   manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Culina",
-  },
   formatDetection: {
     telephone: false,
   },
