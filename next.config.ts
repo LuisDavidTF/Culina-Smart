@@ -6,6 +6,8 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   reloadOnOnline: true,
   swcMinify: true,
   disable: false, // Enable in Dev to test Offline functionality
+  skipWaiting: true, // Auto-Update: install new SW immediately
+  register: true,
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [

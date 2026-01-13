@@ -4,7 +4,7 @@
     "description": "Planifica tus comidas de manera inteligente y eficiente.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
+    "background_color": "#111827",
     "theme_color": "#10b981",
     "icons": [
         {
