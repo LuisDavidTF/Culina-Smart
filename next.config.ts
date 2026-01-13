@@ -8,6 +8,9 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   disable: false, // Enable in Dev to test Offline functionality
   skipWaiting: true, // Auto-Update: install new SW immediately
   register: true,
+  fallbacks: {
+    document: "/~offline",
+  },
   workboxOptions: {
     disableDevLogs: true,
     runtimeCaching: [
@@ -20,7 +23,7 @@ const withPWA = require("@ducanh2912/next-pwa").default({
           expiration: {
             maxEntries: 200,
           },
-          networkTimeoutSeconds: 3, // Fallback to cache quickly if network is slow
+          networkTimeoutSeconds: 2, // 2s timeout for faster offline detection on flaky networks
         },
       },
       // 2. Static Resources (JS, CSS, Fonts) - CacheFirst for performance
