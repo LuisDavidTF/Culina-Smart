@@ -50,15 +50,15 @@ export function AuthForm({ isRegister = false }) {
     const { strength, message } = validatePasswordStrength(password);
     if (strength === 'none' || !password) return null;
 
-    const colorMap = { weak: 'bg-red-500', medium: 'bg-yellow-500', strong: 'bg-emerald-500' };
+    const colorMap = { weak: 'bg-destructive', medium: 'bg-yellow-500', strong: 'bg-primary' };
     const widthMap = { weak: 'w-1/3', medium: 'w-2/3', strong: 'w-full' };
 
     return (
       <div>
-        <div className="h-1 w-full bg-gray-200 rounded-full mt-1">
+        <div className="h-1 w-full bg-muted rounded-full mt-1">
           <div className={`h-1 rounded-full ${colorMap[strength]} ${widthMap[strength]} transition-all`}></div>
         </div>
-        <p className={`text-xs mt-1 ${strength === 'weak' ? 'text-red-600' : 'text-gray-500'}`}>
+        <p className={`text-xs mt-1 ${strength === 'weak' ? 'text-destructive' : 'text-muted-foreground'}`}>
           {message}
         </p>
       </div>
@@ -131,8 +131,8 @@ export function AuthForm({ isRegister = false }) {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-8 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-100 dark:border-gray-700 transition-colors duration-300">
-      <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-100 mb-6">
+    <div className="max-w-md mx-auto mt-10 p-8 bg-card rounded-lg shadow-xl border border-border transition-colors duration-300">
+      <h2 className="text-3xl font-bold text-center text-foreground mb-6">
         {isRegister ? t.auth.registerTitle : t.auth.loginTitle}
       </h2>
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -158,19 +158,19 @@ export function AuthForm({ isRegister = false }) {
           </>
         )}
 
-        {apiError && <p className="text-sm text-red-600 text-center">{apiError}</p>}
+        {apiError && <p className="text-sm text-destructive text-center">{apiError}</p>}
         <div className="pt-2">
-          <Button type="submit" isLoading={isLoading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all duration-200">
+          <Button type="submit" isLoading={isLoading} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-md transition-all duration-200">
             {isRegister ? t.auth.registerBtn : t.auth.loginBtn}
           </Button>
         </div>
       </form>
-      <p className="text-sm text-center text-gray-600 dark:text-gray-400 mt-6">
+      <p className="text-sm text-center text-muted-foreground mt-6">
         {isRegister ? t.auth.haveAccount : t.auth.noAccount}
 
         <Link
           href={isRegister ? '/login' : '/register'}
-          className="font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 ml-1"
+          className="font-medium text-primary hover:text-primary/80 hover:underline ml-1"
         >
           {isRegister ? t.auth.loginLink : t.auth.registerLink}
         </Link>

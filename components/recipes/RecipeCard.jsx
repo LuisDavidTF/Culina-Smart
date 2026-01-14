@@ -40,9 +40,9 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
   const [imgSrc, setImgSrc] = useState(imageUrl);
 
   return (
-    <div className="group bg-card dark:bg-gray-800 rounded-2xl border border-gray-100/50 dark:border-gray-700 shadow-sm hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300 flex flex-col h-full overflow-hidden">
+    <div className="group bg-card dark:bg-card rounded-2xl border border-border/50 shadow-sm hover:shadow-xl hover:translate-y-[-4px] transition-all duration-300 flex flex-col h-full overflow-hidden">
       {/* Image Container */}
-      <div className="relative w-full aspect-[4/3] overflow-hidden bg-gray-100">
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
         <Image
           src={imgSrc}
           alt={recipe.name}
@@ -91,21 +91,21 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-grow bg-white dark:bg-gray-800 relative transition-colors duration-300">
-        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-200 mb-2 leading-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors" title={recipe.name}>
+      <div className="p-5 flex flex-col flex-grow bg-card relative transition-colors duration-300">
+        <h3 className="text-xl font-bold text-foreground mb-2 leading-tight group-hover:text-primary transition-colors" title={recipe.name}>
           {recipe.name}
         </h3>
 
-        <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4 flex-grow leading-relaxed font-light">
+        <p className="text-muted-foreground text-sm line-clamp-2 mb-4 flex-grow leading-relaxed font-light">
           {recipe.description || 'Sin descripción disponible.'}
         </p>
 
         {/* Footer Actions */}
-        <div className="pt-4 mt-auto border-t border-gray-50 dark:border-gray-700">
+        <div className="pt-4 mt-auto border-t border-border">
           <Link
             href={viewHref}
             scroll={false}
-            className="w-full inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn"
+            className="w-full inline-flex items-center justify-center bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn"
           >
             {t.feed.view}
             <svg className="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">

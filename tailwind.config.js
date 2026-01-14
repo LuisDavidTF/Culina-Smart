@@ -9,6 +9,9 @@ module.exports = {
   darkMode: 'selector',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-primary)'],
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

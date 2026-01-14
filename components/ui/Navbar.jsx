@@ -58,7 +58,7 @@ export function Navbar() {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-xs sticky top-0 z-50 transition-colors duration-300 border-b border-gray-100 dark:border-gray-800">
+    <header className="bg-background dark:bg-card shadow-xs sticky top-0 z-50 transition-colors duration-300 border-b border-border/50">
       <nav
         className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8"
         aria-label="Main Navigation"
@@ -67,7 +67,7 @@ export function Navbar() {
 
           {/* Logo / Home Link */}
           <Link href="/" onClick={handleLogoClick} className="shrink-0 flex items-center gap-2">
-            <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-500 tracking-tight">
+            <span className="text-2xl font-bold text-primary tracking-tight">
               Culina Smart
             </span>
           </Link>
@@ -76,13 +76,13 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <span className="text-sm font-medium text-foreground/80">
                   {t.nav.greeting} {getDisplayName()}
                 </span>
 
                 <Link
                   href="/create-recipe"
-                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm"
+                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-primary-foreground bg-primary hover:opacity-90 transition-colors shadow-sm"
                   aria-label={t.nav.create}
                 >
                   <PlusIcon className="w-4 h-4 mr-2" />
@@ -91,7 +91,7 @@ export function Navbar() {
 
                 <Link
                   href="/settings"
-                  className="p-2 text-gray-500 hover:text-emerald-600 transition-colors"
+                  className="p-2 text-muted-foreground hover:text-primary transition-colors"
                   aria-label={t.nav.settings}
                 >
                   <CogIcon className="w-5 h-5" />
@@ -99,7 +99,7 @@ export function Navbar() {
 
                 <button
                   onClick={logout}
-                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 border border-gray-200 transition-colors dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-800 dark:hover:text-white"
+                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-muted-foreground hover:bg-muted border border-border transition-colors hover:text-foreground"
                   aria-label={t.nav.logout}
                 >
                   <LogOutIcon className="w-4 h-4 mr-2" />
@@ -111,7 +111,7 @@ export function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-secondary bg-secondary/10 hover:bg-secondary/20 transition-colors"
                 >
                   <LogInIcon className="w-4 h-4 mr-2" />
                   {t.nav.login}
@@ -119,7 +119,7 @@ export function Navbar() {
 
                 <Link
                   href="/register"
-                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm transition-colors"
+                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-primary-foreground bg-primary hover:opacity-90 shadow-sm transition-colors"
                 >
                   <UserIcon className="w-4 h-4 mr-2" />
                   {t.nav.register}
@@ -132,7 +132,7 @@ export function Navbar() {
           <div className="flex md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-md text-gray-600 hover:text-emerald-600 hover:bg-gray-100 focus:outline-none"
+              className="p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted focus:outline-none"
               aria-label="Abrir menú"
             >
               {isMobileMenuOpen ? (
@@ -146,17 +146,17 @@ export function Navbar() {
 
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
+          <div className="md:hidden py-4 border-t border-border animate-in slide-in-from-top-2 duration-200 bg-background dark:bg-card">
             <div className="flex flex-col space-y-3">
               {isAuthenticated ? (
                 <>
-                  <div className="px-2 py-2 text-sm font-bold text-gray-900 border-b border-gray-50 mb-2">
+                  <div className="px-2 py-2 text-sm font-bold text-foreground border-b border-border/50 mb-2">
                     {t.nav.greeting} {getDisplayName()}
                   </div>
                   <Link
                     href="/create-recipe"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-emerald-700 bg-emerald-50"
+                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-primary bg-primary/10"
                   >
                     <PlusIcon className="w-5 h-5 mr-3" />
                     {t.nav.create}
@@ -165,7 +165,7 @@ export function Navbar() {
                   <Link
                     href="/settings"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-50"
+                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-muted-foreground hover:bg-muted"
                   >
                     <CogIcon className="w-5 h-5 mr-3" />
                     {t.nav.settings}
@@ -173,7 +173,7 @@ export function Navbar() {
 
                   <button
                     onClick={() => { logout(); setIsMobileMenuOpen(false); }}
-                    className="flex items-center w-full text-base font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-50"
+                    className="flex items-center w-full text-base font-medium px-3 py-2 rounded-md text-muted-foreground hover:bg-muted"
                   >
                     <LogOutIcon className="w-5 h-5 mr-3" />
                     {t.nav.logout}
@@ -184,7 +184,7 @@ export function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors"
+                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-secondary-foreground bg-secondary hover:opacity-90 shadow-sm transition-colors"
                   >
                     <LogInIcon className="w-5 h-5 mr-3" />
                     Acceder
@@ -193,7 +193,7 @@ export function Navbar() {
                   <Link
                     href="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-white bg-emerald-600"
+                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-primary-foreground bg-primary hover:opacity-90 transition-colors"
                   >
                     <UserIcon className="w-5 h-5 mr-3" />
                     Registrarse

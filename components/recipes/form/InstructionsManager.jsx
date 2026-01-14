@@ -13,11 +13,11 @@ export function InstructionsManager({ instructions, onChange, onAdd, onRemove, e
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="block text-sm font-medium text-foreground">
           {t.createRecipe.instrTitle}
         </label>
         {error && (
-          <span className="text-xs text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400 px-2 py-1 rounded border border-red-100 dark:border-red-800 font-medium">
+          <span className="text-xs text-destructive bg-destructive/10 px-2 py-1 rounded border border-destructive/20 font-medium">
             {error}
           </span>
         )}
@@ -27,7 +27,7 @@ export function InstructionsManager({ instructions, onChange, onAdd, onRemove, e
         {instructions.map((step, index) => (
           <div key={index} className="flex gap-3 items-start group">
             {/* Visual index is decoupled from data persistence (1-based for UI) */}
-            <span className="mt-2.5 text-xs font-bold text-gray-400 dark:text-gray-500 w-12 text-right select-none">
+            <span className="mt-2.5 text-xs font-bold text-muted-foreground w-12 text-right select-none">
               {t.createRecipe.step} {index + 1}
             </span>
 
@@ -37,14 +37,14 @@ export function InstructionsManager({ instructions, onChange, onAdd, onRemove, e
                 onChange={(e) => onChange(index, e.target.value)}
                 placeholder={`${t.createRecipe.stepPlaceholder} ${index + 1}...`}
                 rows={2}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm resize-none transition-all bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-300 dark:placeholder:text-gray-500"
+                className="w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-ring focus:border-ring text-sm resize-none transition-all bg-background border-input text-foreground placeholder:text-muted-foreground"
               />
             </div>
 
             <button
               type="button"
               onClick={() => onRemove(index)}
-              className="mt-2 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 transition-colors p-1 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="mt-2 text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-destructive/10"
               title="Eliminar paso"
               // Prevent removing the last item to ensure form usability
               disabled={instructions.length <= 1}
@@ -60,7 +60,7 @@ export function InstructionsManager({ instructions, onChange, onAdd, onRemove, e
         type="button"
         variant="ghost"
         onClick={onAdd}
-        className="text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 text-sm pl-0 hover:bg-transparent font-medium"
+        className="text-primary hover:text-primary/80 text-sm pl-0 hover:bg-transparent font-medium"
       >
         {t.createRecipe.addStep}
       </Button>

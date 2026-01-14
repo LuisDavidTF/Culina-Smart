@@ -217,7 +217,7 @@ function RecipeDetailContent({ recipe }) {
                             {recipe.instructions?.length > 0 ? (
                                 recipe.instructions.map((instruction, index) => (
                                     <div key={index} className="flex gap-4 group">
-                                        <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 font-bold text-sm group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                                        <span className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                             {index + 1}
                                         </span>
                                         <p className="text-gray-700 dark:text-gray-300 leading-7 mt-1">

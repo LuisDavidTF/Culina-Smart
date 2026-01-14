@@ -38,12 +38,12 @@ export function RecipeForm({ recipeId }) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto mt-6 p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 mb-20 transition-colors duration-300">
-      <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+    <div className="max-w-3xl mx-auto mt-6 p-8 bg-card rounded-xl shadow-lg border border-border mb-20 transition-colors duration-300">
+      <div className="mb-8 border-b border-border pb-4">
+        <h2 className="text-2xl font-bold text-foreground">
           {isEditMode ? t.createRecipe.editTitle : t.createRecipe.newTitle}
         </h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           {isEditMode ? t.createRecipe.editSubtitle : t.createRecipe.newSubtitle}
         </p>
       </div>
@@ -69,14 +69,14 @@ export function RecipeForm({ recipeId }) {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t.createRecipe.desc}</label>
+            <label className="block text-sm font-medium text-foreground mb-1">{t.createRecipe.desc}</label>
             <textarea
               rows={3}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-emerald-500 focus:border-emerald-500 shadow-sm transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 ${errors.description ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'}`}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-ring focus:border-ring shadow-sm transition-colors bg-background text-foreground ${errors.description ? 'border-destructive' : 'border-input'}`}
               value={formData.description}
               onChange={(e) => handlers.setFieldValue('description', e.target.value)}
             />
-            {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
+            {errors.description && <p className="text-xs text-destructive mt-1">{errors.description}</p>}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -98,7 +98,7 @@ export function RecipeForm({ recipeId }) {
           </div>
         </div>
 
-        <hr className="border-gray-100 dark:border-gray-700" />
+        <hr className="border-border" />
 
         {/* --- Ingredients Section --- */}
         <IngredientsManager
@@ -109,7 +109,7 @@ export function RecipeForm({ recipeId }) {
           error={errors.ingredientsRoot}
         />
 
-        <hr className="border-gray-100 dark:border-gray-700" />
+        <hr className="border-border" />
 
         {/* --- Instructions Section (Strict Array Handling) --- */}
         <InstructionsManager
@@ -120,18 +120,18 @@ export function RecipeForm({ recipeId }) {
           error={errors.instructionsRoot}
         />
 
-        <hr className="border-gray-100 dark:border-gray-700" />
+        <hr className="border-border" />
 
         {/* --- Metadata Section --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-gray-50 dark:bg-gray-700/30 p-5 rounded-lg border border-gray-100 dark:border-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-muted/50 p-5 rounded-lg border border-border">
           <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">
               {t.createRecipe.type}
             </label>
             <select
               value={formData.type}
               onChange={(e) => handlers.setFieldValue('type', e.target.value)}
-              className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm py-2 px-3 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 dark:text-gray-100"
+              className="w-full bg-background border border-input rounded-md text-sm py-2 px-3 focus:ring-ring focus:border-ring text-foreground"
             >
               <option value="breakfast">{t.createRecipe.breakfast}</option>
               <option value="lunch">{t.createRecipe.lunch}</option>
@@ -139,13 +139,13 @@ export function RecipeForm({ recipeId }) {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+            <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">
               {t.createRecipe.visibility}
             </label>
             <select
               value={formData.visibility}
               onChange={(e) => handlers.setFieldValue('visibility', e.target.value)}
-              className="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md text-sm py-2 px-3 focus:ring-emerald-500 focus:border-emerald-500 text-gray-900 dark:text-gray-100"
+              className="w-full bg-background border border-input rounded-md text-sm py-2 px-3 focus:ring-ring focus:border-ring text-foreground"
             >
               <option value="public">{t.createRecipe.public}</option>
               <option value="private">{t.createRecipe.private}</option>
@@ -154,7 +154,7 @@ export function RecipeForm({ recipeId }) {
         </div>
 
         {apiError && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded relative" role="alert">
             <span className="block sm:inline">{apiError}</span>
           </div>
         )}
@@ -163,7 +163,7 @@ export function RecipeForm({ recipeId }) {
         <div className="flex gap-4 pt-4">
           <Link
             href="/"
-            className="flex-1 text-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 transition-colors"
+            className="flex-1 text-center px-4 py-3 border border-border rounded-lg shadow-sm text-sm font-medium text-foreground bg-background hover:bg-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-border transition-colors"
           >
             {t.createRecipe.cancel}
           </Link>

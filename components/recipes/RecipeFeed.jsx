@@ -87,8 +87,8 @@ export function RecipeFeed({ initialData = null }) {
       {/* Header Section - Always visible */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">{t.feed.title}</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mt-1">
+          <h1 className="text-3xl font-bold text-foreground leading-tight">{t.feed.title}</h1>
+          <p className="text-lg text-muted-foreground mt-1">
             {t.feed.subtitle}
           </p>
         </div>
@@ -144,7 +144,7 @@ export function RecipeFeed({ initialData = null }) {
       {/* Manual Retry Button on Error */}
       {isErrorLoadingMore && (
         <div className="flex flex-col items-center justify-center py-8 gap-3">
-          <p className="text-sm text-red-500">{t.feed.error}</p>
+          <p className="text-sm text-destructive">{t.feed.error}</p>
           <Button onClick={retryLoadMore} variant="outline" className="text-sm">
             {t.feed.retry}
           </Button>
@@ -160,8 +160,8 @@ export function RecipeFeed({ initialData = null }) {
 
       {/* End of Feed Message */}
       {!hasMore && !isErrorLoadingMore && recipes.length > 0 && (
-        <div className="text-center py-12 border-t mt-12 border-gray-100">
-          <p className="text-gray-400 text-sm">{t.feed.end}</p>
+        <div className="text-center py-12 border-t mt-12 border-border">
+          <p className="text-muted-foreground text-sm">{t.feed.end}</p>
         </div>
       )}
 
@@ -172,7 +172,7 @@ export function RecipeFeed({ initialData = null }) {
         title={t.feed.deleteTitle}
       >
         <div className="space-y-4">
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-foreground">
             {t.feed.deleteConfirm} <strong>{deleteModalState.recipe?.name}</strong>?
           </p>
           <div className="flex justify-end gap-3">
