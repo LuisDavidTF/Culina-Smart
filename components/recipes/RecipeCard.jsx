@@ -86,6 +86,7 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
         <div className="pt-4 mt-auto border-t border-gray-50 dark:border-gray-700">
           <Link
             href={viewHref}
+            scroll={false}
             className="w-full inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white dark:hover:bg-emerald-600 dark:hover:text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn"
           >
             {t.feed.view}
