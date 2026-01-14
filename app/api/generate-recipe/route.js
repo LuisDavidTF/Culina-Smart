@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { API_BASE_URL } from '@utils/constants';  
+import { RecipeService } from '@/lib/services/recipes';
 
 const TOKEN_NAME = 'auth_token';
 
@@ -14,56 +14,23 @@ export async function POST(request) {
   }
 
   const token = tokenCookie.value;
-  const body = await request.json();
-  let apiRes; 
 
   try {
+    const body = await request.json();
+    const { prompt } = body;
 
-    const endpoint = `${API_BASE_URL}/ai/generate-magic`; 
-    
-    apiRes = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
-    });
+    // We expect the result to be the recipe object directly or wrapped in data?
+    // RecipeService.generate returns the response body.
+    // Docs say: 200 -> RecipeGenerateResponse (which is the recipe object fields)
+    const data = await RecipeService.generate(prompt, token);
 
-
-    const text = await apiRes.text();
-
-
-    if (!apiRes.ok) {
-      let errorData;
-      try {
-
-        errorData = JSON.parse(text);
-      } catch (e) {
-
-        throw new Error(text.includes('DOCTYPE') ? 'El backend devolvió HTML.' : 'Error del backend.');
-      }
-      
-
-      return NextResponse.json(
-        { message: errorData.error || 'Error desconocido del backend' },
-        { status: apiRes.status } 
-      );
-    }
-
-
-    const data = JSON.parse(text); 
-    
-
-    return NextResponse.json(data.recipe);
+    return NextResponse.json(data, { status: 200 });
 
   } catch (error) {
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    
-    
+    const status = error.status || 500;
     return NextResponse.json(
-      { message: `Error interno del servidor: ${errorMessage}` }, 
-      { status: 500 }
+      { message: error.message || `Error interno del servidor`, error: error.message },
+      { status }
     );
   }
 }

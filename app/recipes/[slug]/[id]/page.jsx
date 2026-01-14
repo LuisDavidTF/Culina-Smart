@@ -1,47 +1,18 @@
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { headers } from 'next/headers';
+import { RecipeService } from '@/lib/services/recipes';
 import RecipeClient from './RecipeClient';
 import { slugify } from '@utils/slugify';
 
 async function getRecipe(id) {
-    let apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    // Dynamic host detection for robust server-side fetching
-    if (!apiUrl || apiUrl.startsWith('/')) {
-        try {
-            const headersList = await headers();
-            const host = headersList.get('host');
-            const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-            apiUrl = `${protocol}://${host}`;
-        } catch (e) {
-            console.warn("Could not determine host from headers", e);
-        }
-    }
-
-    if (!apiUrl) return null;
-
     try {
-        // Fix: backend URL likely includes /api/v1, so we should append /recipes, not /api/recipes
-        // However, we need to be careful. 
-        // If apiUrl is just "http://localhost:3000" (from header detection), we DO need /api/recipes.
-        // If apiUrl is "https://.../api/v1", we likely need /recipes.
+        const cookieStore = await cookies();
+        const token = cookieStore.get('auth_token')?.value;
 
-        let endpoint = `/api/recipes/${id}`;
-        if (apiUrl.includes('/api/v1')) {
-            endpoint = `/recipes/${id}`;
-        }
-
-        const res = await fetch(`${apiUrl}${endpoint}`, {
-            next: { revalidate: 3600 }
-        });
-
-        if (!res.ok) {
-            if (res.status === 404) return null;
-            throw new Error(`Failed to fetch recipe: ${res.status}`);
-        }
-
-        const data = await res.json();
-        return data.data || data;
+        // Use RecipeService instead of direct fetch
+        // This abstracts URL handling and now supports Headers/Token
+        const data = await RecipeService.getById(id, token);
+        return data;
     } catch (error) {
         console.error("SERVER FETCH ERROR:", error);
         return null;
@@ -68,7 +39,7 @@ export async function generateMetadata({ params }) {
         openGraph: {
             title: recipe.name,
             description: recipe.description,
-            images: recipe.image_url ? [{ url: recipe.image_url }] : [],
+            images: recipe.imageUrl ? [{ url: recipe.imageUrl }] : [],
         },
         alternates: {
             canonical: canonicalUrl,

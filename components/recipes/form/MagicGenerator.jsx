@@ -52,10 +52,19 @@ export function MagicGenerator({ onDraftGenerated }) {
       const sanitizedDraft = {
         name: rawDraft.name || '',
         description: rawDraft.description || '',
-        preparationTime: rawDraft.preparationTime || '',
+        // API v2 returns preparationTimeMinutes
+        preparationTime: rawDraft.preparationTimeMinutes || rawDraft.preparationTime || '',
         // Use a generic placeholder if AI fails to provide a valid image URL
-        imageUrl: rawDraft.image_url || 'https://placehold.co/600x400/e2e8f0/475569?text=AI+Generated',
-        ingredients: Array.isArray(rawDraft.ingredients) ? rawDraft.ingredients : [],
+        // API v2 returns imageUrl
+        imageUrl: rawDraft.imageUrl || rawDraft.image_url || 'https://placehold.co/600x400/e2e8f0/475569?text=AI+Generated',
+        ingredients: Array.isArray(rawDraft.ingredients)
+          ? rawDraft.ingredients.map(ing => ({
+            name: ing.name || '',
+            quantity: ing.quantity || '',
+            // Map API/AI's unitOfMeasure to internal unit_of_measure
+            unit_of_measure: ing.unitOfMeasure || ing.unit_of_measure || ''
+          }))
+          : [],
         instructions: normalizedInstructions,
         type: rawDraft.type || 'lunch',
       };

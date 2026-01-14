@@ -163,7 +163,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="flex justify-end">
-                    <Button variant="danger" onClick={handleClearCache} disabled={isClearing} size="sm">
+                    <Button variant="danger" onClick={handleClearCache} disabled={isClearing} size="sm" className="bg-red-600 hover:bg-red-700 text-white dark:bg-red-700 dark:hover:bg-red-800">
                         {isClearing ? t.settings.clearing : t.settings.clear}
                     </Button>
                 </div>

@@ -36,7 +36,7 @@ export function useRecipeFeed({ initialData } = {}) {
     // If SSR data is empty, check cache immediately in an effect.
 
     const initialRecipes = initialData?.data || [];
-    const initialCursor = initialData?.nextCursor || null;
+    const initialCursor = initialData?.meta?.nextCursor || initialData?.nextCursor || null;
 
     const [status, setStatus] = useState(initialRecipes.length > 0 ? 'success' : 'loading');
     const [recipes, setRecipes] = useState(initialRecipes);
@@ -143,15 +143,17 @@ export function useRecipeFeed({ initialData } = {}) {
         setErrorMessage('');
 
         try {
-            const data = await api.getRecipes();
+            const response = await api.getRecipes();
 
             // Safety: If API returns empty and we have a cache, maybe keep cache? 
             // For now, let's treat API as truth. 
             // But if API throws error (offline), we handled that in catch.
+            const data = response.data || [];
+            const nextCursor = response.meta?.nextCursor || null;
 
-            setRecipes(data.data || []);
-            setNextCursor(data.nextCursor);
-            setHasMore(!!data.nextCursor);
+            setRecipes(data);
+            setNextCursor(nextCursor);
+            setHasMore(!!nextCursor && data.length > 0);
             setStatus('success');
         } catch (error) {
             // ERROR HANDLING WITH FALLBACK
@@ -179,12 +181,16 @@ export function useRecipeFeed({ initialData } = {}) {
         setIsLoadingMore(true);
         try {
             const params = {};
+            // New API uses a single string cursor
             if (stateRef.current.nextCursor) {
-                params.cursorId = stateRef.current.nextCursor.id;
-                params.cursorDate = stateRef.current.nextCursor.createdAt;
+                params.cursor = stateRef.current.nextCursor;
             }
 
-            const { data: newRecipes, nextCursor: newNextCursor } = await api.getRecipes(params);
+            const response = await api.getRecipes(params);
+
+            // Handle new response structure { data, meta }
+            const newRecipes = response.data || [];
+            const newNextCursor = response.meta?.nextCursor || null;
 
             setRecipes(prev => {
                 const newIds = new Set(prev.map(r => r.id));

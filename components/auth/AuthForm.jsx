@@ -160,7 +160,7 @@ export function AuthForm({ isRegister = false }) {
 
         {apiError && <p className="text-sm text-red-600 text-center">{apiError}</p>}
         <div className="pt-2">
-          <Button type="submit" isLoading={isLoading} className="w-full">
+          <Button type="submit" isLoading={isLoading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition-all duration-200">
             {isRegister ? t.auth.registerBtn : t.auth.loginBtn}
           </Button>
         </div>

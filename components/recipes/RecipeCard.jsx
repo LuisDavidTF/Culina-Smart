@@ -10,13 +10,31 @@ import { ClockIcon, EditIcon, TrashIcon, UserIcon } from '@components/ui/Icons';
 export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
   const { user } = useAuth();
   const { t } = useSettings();
-  // Safe accessor for user ID comparison
-  const isOwner = user && recipe.user && user.id === recipe.user.id;
+  // Safe accessor for user ID comparison - Robust against String/Int mismatches and undefined
+  // FALLBACK: Name comparison (requested by user due to missing API IDs)
+  // Normalized to handle "Luis" vs "luis" and potential missing fields
+  const normalize = (str) => String(str || '').trim().toLowerCase();
+
+  if (user) {
+    console.log(`[RecipeCard Debug] Recipe: ${recipe.name}`);
+    console.log(`  - User: ID=${user.id}, Name=${user.name}`);
+    console.log(`  - Recipe: UserID=${recipe.user_id}, AuthorName=${recipe.authorName}, Author_Name=${recipe.author_name}, User.Name=${recipe.user?.name}`);
+  }
+
+  const isOwner = user && (
+    (user.id && recipe.user_id && String(user.id) === String(recipe.user_id)) ||
+    (user.id && recipe.user?.id && String(user.id) === String(recipe.user.id)) ||
+    (user.name && (
+      normalize(user.name) === normalize(recipe.authorName) ||
+      normalize(user.name) === normalize(recipe.author_name) ||
+      normalize(user.name) === normalize(recipe.user?.name)
+    ))
+  );
 
   // Data correctness mapping from provided JSON
-  const imageUrl = recipe.image_url || 'https://placehold.co/600x400/f3f4f6/9ca3af?text=Sin+Imagen';
-  const prepTime = recipe.preparation_time_minutes || 0;
-  const authorName = recipe.user?.name || 'Chef Anónimo';
+  const imageUrl = recipe.imageUrl || 'https://placehold.co/600x400/f3f4f6/9ca3af?text=Sin+Imagen';
+  const prepTime = recipe.preparationTimeMinutes || 0;
+  const authorName = recipe.authorName || recipe.user?.name || 'Chef Anónimo';
   const type = recipe.type || 'General';
 
   const [imgSrc, setImgSrc] = useState(imageUrl);

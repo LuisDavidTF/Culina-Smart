@@ -111,7 +111,7 @@ export function Navbar() {
               <>
                 <Link
                   href="/login"
-                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors"
+                  className="flex items-center text-sm font-medium px-4 py-2 rounded-lg text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
                 >
                   <LogInIcon className="w-4 h-4 mr-2" />
                   {t.nav.login}
@@ -184,7 +184,7 @@ export function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-gray-600 hover:bg-gray-50"
+                    className="flex items-center text-base font-medium px-3 py-2 rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm transition-colors"
                   >
                     <LogInIcon className="w-5 h-5 mr-3" />
                     Acceder

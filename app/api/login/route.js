@@ -1,35 +1,23 @@
-
 import { NextResponse } from 'next/server';
-import { API_BASE_URL } from '@utils/constants';
+import { AuthService } from '@/lib/services/auth';
 import { serialize } from 'cookie';
 
-export const maxDuration = 60; 
+export const maxDuration = 60;
 const TOKEN_NAME = 'auth_token';
-const MAX_AGE = 60 * 60 * 24 * 7; 
+const MAX_AGE = 60 * 60 * 24 * 7;
 
 export async function POST(request) {
   try {
     const body = await request.json();
     const { email, password } = body;
 
-    const apiRes = await fetch(`${API_BASE_URL}/auth/login`, { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    const data = await AuthService.login({ email, password });
 
-    const data = await apiRes.json();
-
-    if (!apiRes.ok) {
-      return NextResponse.json(
-        { message: data.message || 'Error de autenticación' },
-        { status: apiRes.status }
-      );
-    }
-    
     const responseData = data.data || data;
     const token = responseData.token;
-    const user = {
+
+    // Support nested user object or flat structure depending on API
+    const user = responseData.user || {
       id: responseData.id,
       name: responseData.name,
       email: responseData.email,
@@ -47,7 +35,7 @@ export async function POST(request) {
       secure: process.env.NODE_ENV === 'production',
       maxAge: MAX_AGE,
       path: '/',
-      sameSite: 'lax', 
+      sameSite: 'lax',
     });
 
 
@@ -62,6 +50,13 @@ export async function POST(request) {
     );
 
   } catch (error) {
+    // Check if it's our structured error
+    if (error.status) {
+      return NextResponse.json(
+        { message: error.message || 'Error de autenticación' },
+        { status: error.status }
+      );
+    }
     return NextResponse.json(
       { message: 'Error interno del servidor', error: error.message },
       { status: 500 }

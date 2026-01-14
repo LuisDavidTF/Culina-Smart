@@ -1,9 +1,10 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { API_BASE_URL } from '@utils/constants';
+import { AuthService } from '@/lib/services/auth';
 import { CacheManager } from '@utils/cacheManager';
 
+// Context
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -52,6 +53,7 @@ export const AuthProvider = ({ children }) => {
   }, [checkUserSession]);
 
   const login = useCallback(async (email, password) => {
+    // We use the Next.js API route for Login to handle efficient Cookie setting
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -65,7 +67,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     setUser(data.user);
-    // SECURITY: Only store safe fields offline.
     const safeUser = {
       id: data.user.id,
       name: data.user.name,
@@ -77,17 +78,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const register = useCallback(async (name, email, password, passwordConfirmation) => {
-    const res = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, password_confirmation: passwordConfirmation }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      const errorMsg = data.message || data.error || 'Error al registrar';
-      throw new Error(errorMsg);
-    }
+    // Direct call to AuthService for Register (no cookie needed immediately, usually auto-login follows or redirect)
+    // We strip passwordConfirmation to match API schema
+    const data = await AuthService.register({ name, email, password });
     return data;
   }, []);
 

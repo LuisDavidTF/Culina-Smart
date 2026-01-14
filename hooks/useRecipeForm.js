@@ -42,8 +42,20 @@ export function useRecipeForm(recipeId) {
 
         // --- SECURITY CHECK: Ownership Verification ---
         // If user is logged in, ensure they own the recipe before letting them see the edit form.
-        // Falls back safely if user object isn't fully ready yet, but typically AuthContext loads first.
-        if (user && recipe.user && recipe.user.id !== user.id) {
+        // API v2 uses `user_id` reliability. We use String() comparison to avoid Type mismatches (int vs string).
+        // FALLBACK: Name comparison as requested by user.
+        const normalize = (str) => String(str || '').trim().toLowerCase();
+
+        const isOwner = (
+          (user.id && recipe.user_id && String(user.id) === String(recipe.user_id)) ||
+          (user.name && (
+            normalize(user.name) === normalize(recipe.authorName) ||
+            normalize(user.name) === normalize(recipe.author_name) ||
+            normalize(user.name) === normalize(recipe.user?.name)
+          ))
+        );
+
+        if (user && !isOwner) {
           showToast('No tienes permiso para editar esta receta.', 'error');
           router.push('/');
           return;
@@ -61,12 +73,15 @@ export function useRecipeForm(recipeId) {
         setFormData({
           name: recipe.name || '',
           description: recipe.description || '',
-          preparationTime: recipe.preparation_time_minutes || '',
-          imageUrl: recipe.image_url || '',
+          // API v2: preparationTimeMinutes (camelCase)
+          preparationTime: recipe.preparationTimeMinutes || recipe.preparation_time_minutes || '',
+          // API v2: imageUrl (camelCase)
+          imageUrl: recipe.imageUrl || recipe.image_url || '',
+          // API v2: ingredients (array of objects with name, unitOfMeasure, quantity)
           ingredients: recipe.ingredients?.map(ing => ({
-            name: ing.ingredient.name || '',
+            name: ing.name || ing.ingredient?.name || '',
             quantity: ing.quantity || '',
-            unit_of_measure: ing.unit_of_measure || '',
+            unit_of_measure: ing.unitOfMeasure || ing.unit_of_measure || '',
           })) || [{ name: '', quantity: '', unit_of_measure: '' }],
           instructions: normalizedInstructions,
           type: recipe.type || 'lunch',
@@ -144,13 +159,13 @@ export function useRecipeForm(recipeId) {
     if (!formData.imageUrl?.trim()) newErrors.imageUrl = 'URL de imagen requerida.';
 
     // Validate Instructions (Array<String>)
-    const validInstructions = formData.instructions.filter(i => i.trim().length >= 5);
+    const validInstructions = formData.instructions.filter(i => (i || '').trim().length >= 5);
     if (validInstructions.length === 0) {
       newErrors.instructionsRoot = 'Al menos una instrucción válida (min 5 letras).';
     }
 
     // Validate Ingredients
-    const validIngredients = formData.ingredients.filter(i => i.name.trim() && i.unit_of_measure.trim());
+    const validIngredients = formData.ingredients.filter(i => (i.name || '').trim() && (i.unit_of_measure || '').trim());
     if (validIngredients.length === 0) {
       newErrors.ingredientsRoot = 'Al menos un ingrediente válido.';
     }
@@ -176,21 +191,21 @@ export function useRecipeForm(recipeId) {
       description: formData.description,
       type: formData.type,
       visibility: formData.visibility,
-      preparation_time_minutes: parseInt(formData.preparationTime, 10),
-      image_url: formData.imageUrl.trim(),
+      preparationTimeMinutes: parseInt(formData.preparationTime, 10),
+      imageUrl: (formData.imageUrl || '').trim(),
 
       ingredients: formData.ingredients
-        .filter(i => i.name.trim())
+        .filter(i => (i.name || '').trim())
         .map(i => ({
-          name: i.name.trim(),
-          unit_of_measure: i.unit_of_measure.trim(),
+          name: (i.name || '').trim(),
+          unitOfMeasure: (i.unit_of_measure || '').trim(),
           quantity: i.quantity ? parseFloat(i.quantity) : undefined
         })),
 
       // STRICT ARRAY SUBMISSION:
       // Sends ["Step 1", "Step 2"] directly to backend. 
       instructions: formData.instructions
-        .map(s => s.trim())
+        .map(s => (s || '').trim())
         .filter(s => s.length > 0)
     };
 

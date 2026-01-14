@@ -7,6 +7,11 @@ import { useApiClient } from '@hooks/useApiClient';
 import { useSettings } from '@context/SettingsContext';
 import { CacheManager } from '@utils/cacheManager';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@context/AuthContext';
+import { Button } from '@components/ui/Button';
+import { EditIcon, TrashIcon } from '@components/ui/Icons';
+import { useToast } from '@context/ToastContext';
+import { Modal } from '@components/ui/Modal';
 
 function useRecipeData(id, initialData) {
     const [recipe, setRecipe] = useState(initialData || null);
@@ -73,13 +78,46 @@ function useRecipeData(id, initialData) {
 }
 
 function RecipeDetailContent({ recipe }) {
+    const { user } = useAuth();
     const { t } = useSettings();
+    const router = useRouter();
+    const { showToast } = useToast();
+    const api = useApiClient();
+
+    const [deleteModalState, setDeleteModalState] = React.useState({ isOpen: false });
 
     if (!recipe) return null;
 
+    // Safe accessor for user ID comparison - Robust against String/Int mismatches and undefined
+    // FALLBACK: Name comparison (requested by user due to missing API IDs)
+    const normalize = (str) => String(str || '').trim().toLowerCase();
+
+    const isOwner = user && (
+        (user.id && recipe.user_id && String(user.id) === String(recipe.user_id)) ||
+        (user.id && recipe.user?.id && String(user.id) === String(recipe.user.id)) ||
+        (user.name && (
+            normalize(user.name) === normalize(recipe.authorName) ||
+            normalize(user.name) === normalize(recipe.author_name) ||
+            normalize(user.name) === normalize(recipe.user?.name)
+        ))
+    );
+
+    const handleEdit = () => router.push(`/edit-recipe/${recipe.id}`);
+    const handleDelete = () => setDeleteModalState({ isOpen: true });
+
+    const confirmDelete = async () => {
+        try {
+            await api.deleteRecipe(recipe.id);
+            showToast(t.feed.deleted, 'success');
+            router.push('/');
+            router.refresh();
+        } catch (error) {
+            showToast(error.message || 'Error', 'error');
+        }
+    };
+
     // Use the image directly from the recipe object. The SmartImage component handles errors/fallbacks.
-    // Use the image directly from the recipe object. The SmartImage component handles errors/fallbacks.
-    let imageUrl = recipe.image_url;
+    let imageUrl = recipe.imageUrl;
 
     // Resolve relative URLs
     if (imageUrl && imageUrl.startsWith('/')) {
@@ -105,18 +143,39 @@ function RecipeDetailContent({ recipe }) {
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex items-end">
-                    <div className="p-6 md:p-8 text-white w-full">
-                        <h1 className="text-3xl md:text-4xl font-bold mb-2 shadow-sm">{recipe.name}</h1>
-                        <div className="flex items-center gap-4 text-sm font-medium">
-                            <span className="flex items-center bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
-                                <ClockIcon className="w-4 h-4 mr-2" />
-                                {recipe.preparation_time_minutes} {t.recipe.time}
-                            </span>
-                            <span className="flex items-center bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
-                                <UserIcon className="w-4 h-4 mr-2" />
-                                {recipe.user?.name || t.recipe.chef}
-                            </span>
+                    <div className="p-6 md:p-8 text-white w-full flex justify-between items-end">
+                        <div>
+                            <h1 className="text-3xl md:text-4xl font-bold mb-2 shadow-sm">{recipe.name}</h1>
+                            <div className="flex items-center gap-4 text-sm font-medium">
+                                <span className="flex items-center bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
+                                    <ClockIcon className="w-4 h-4 mr-2" />
+                                    {recipe.preparationTimeMinutes} {t.recipe.time}
+                                </span>
+                                <span className="flex items-center bg-white/20 backdrop-blur-md px-3 py-1 rounded-full">
+                                    <UserIcon className="w-4 h-4 mr-2" />
+                                    {recipe.authorName || recipe.user?.name || t.recipe.chef}
+                                </span>
+                            </div>
                         </div>
+
+                        {isOwner && (
+                            <div className="hidden sm:flex gap-3">
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleEdit}
+                                    className="border-0"
+                                >
+                                    <EditIcon className="w-4 h-4 mr-2" /> {t.common.edit}
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={handleDelete}
+                                    className="bg-red-500/80 hover:bg-red-600/90 backdrop-blur-md"
+                                >
+                                    <TrashIcon className="w-4 h-4 mr-2" /> {t.common.delete}
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -125,6 +184,22 @@ function RecipeDetailContent({ recipe }) {
 
                 {/* Main Content */}
                 <div className="space-y-8">
+                    {/* Mobile Actions */}
+                    {isOwner && (
+                        <div className="flex sm:hidden gap-3 mb-6">
+                            <Button
+                                variant="secondary"
+                                onClick={handleEdit}
+                                className="flex-1"
+                            >
+                                <EditIcon className="w-4 h-4 mr-2" /> {t.common.edit}
+                            </Button>
+                            <Button variant="danger" onClick={handleDelete} className="flex-1">
+                                <TrashIcon className="w-4 h-4 mr-2" /> {t.common.delete}
+                            </Button>
+                        </div>
+                    )}
+
                     <section>
                         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-200 mb-3 flex items-center">
                             {t.recipe.desc}
@@ -167,9 +242,9 @@ function RecipeDetailContent({ recipe }) {
                             {recipe.ingredients?.length > 0 ? (
                                 recipe.ingredients.map((ing, i) => (
                                     <li key={ing.id || i} className="flex items-start justify-between text-sm">
-                                        <span className="text-gray-700 dark:text-gray-300 font-medium">{ing.ingredient.name}</span>
+                                        <span className="text-gray-700 dark:text-gray-300 font-medium">{ing.name || ing.ingredient?.name}</span>
                                         <span className="text-gray-500 dark:text-gray-400 whitespace-nowrap ml-2">
-                                            {ing.quantity} {ing.unit_of_measure}
+                                            {ing.quantity} {ing.unitOfMeasure || ing.unit_of_measure}
                                         </span>
                                     </li>
                                 ))
@@ -181,6 +256,30 @@ function RecipeDetailContent({ recipe }) {
                 </aside>
 
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                isOpen={deleteModalState.isOpen}
+                onClose={() => setDeleteModalState({ isOpen: false })}
+                title={t.feed.deleteTitle}
+            >
+                <div className="space-y-4">
+                    <p className="text-gray-600 dark:text-gray-300">
+                        {t.feed.deleteConfirm} <strong>{recipe.name}</strong>?
+                    </p>
+                    <div className="flex justify-end gap-3">
+                        <Button
+                            variant="ghost"
+                            onClick={() => setDeleteModalState({ isOpen: false })}
+                        >
+                            {t.feed.cancel}
+                        </Button>
+                        <Button variant="danger" onClick={confirmDelete}>
+                            {t.feed.confirmDelete}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </article>
     );
 }

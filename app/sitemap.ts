@@ -1,26 +1,12 @@
 import { MetadataRoute } from 'next'
 import { slugify } from '@utils/slugify';
 
+import { RecipeService } from '@/lib/services/recipes';
+
 async function getAllRecipes() {
-    let apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    if (!apiUrl) return [];
-
     try {
-        // Robust API URL construction
-        let endpoint = '/api/recipes';
-        if (apiUrl.includes('/api/v1')) {
-            endpoint = '/recipes';
-        }
-
-        // Fetch all recipes
-        const res = await fetch(`${apiUrl}${endpoint}`, {
-            next: { revalidate: 3600 }
-        });
-
-        if (!res.ok) return [];
-
-        const data = await res.json();
-        return data.data || data || [];
+        const response = await RecipeService.getAll({ limit: 100 }); // Reasonable limit for sitemap?
+        return response.data || [];
     } catch (error) {
         console.error("Sitemap fetch error:", error);
         return [];
@@ -40,8 +26,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         };
 
         // Google Image Sitemap extension
-        if (recipe.image_url) {
-            item.images = [recipe.image_url];
+        if (recipe.imageUrl) {
+            item.images = [recipe.imageUrl];
         }
 
         return item;

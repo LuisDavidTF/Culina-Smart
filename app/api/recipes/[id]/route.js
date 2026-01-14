@@ -1,37 +1,26 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { API_BASE_URL } from '@utils/constants';
+import { revalidateTag } from 'next/cache';
+import { RecipeService } from '@/lib/services/recipes';
 
 const TOKEN_NAME = 'auth_token';
 
 export async function GET(request, { params }) {
-  const { id } = await params; 
-  const cookieStore = await cookies();
-  const tokenCookie = cookieStore.get(TOKEN_NAME);
-
-  const headers = {};
-  
-  if (tokenCookie) {
-    headers['Authorization'] = `Bearer ${tokenCookie.value}`;
-  }
+  const { id } = await params;
 
   try {
-    const apiRes = await fetch(`${API_BASE_URL}/recipes/${id}`, {
-      method: 'GET',
-      headers: headers,
-    });
-
-    const text = await apiRes.text();
-    const data = text ? JSON.parse(text) : null;
-
-    return NextResponse.json(data, { status: apiRes.status });
-
+    const data = await RecipeService.getById(id);
+    return NextResponse.json(data, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ message: 'Error interno del servidor', error: error.message }, { status: 500 });
+    const status = error.status || 500;
+    return NextResponse.json(
+      { message: error.message || 'Error interno del servidor', error: error.message },
+      { status }
+    );
   }
 }
 
-async function protectedRequest(request, endpoint) {
+async function protectedRequest(request, operation, id) {
   const cookieStore = await cookies();
   const tokenCookie = cookieStore.get(TOKEN_NAME);
 
@@ -40,45 +29,40 @@ async function protectedRequest(request, endpoint) {
   }
 
   const token = tokenCookie.value;
-  const method = request.method;
-  let body = null;
-  
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-  };
-
-  if (method === 'PATCH') {
-    body = await request.json();
-    headers['Content-Type'] = 'application/json';
-  }
 
   try {
-    const apiRes = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: method,
-      headers: headers,
-      body: body ? JSON.stringify(body) : null,
-    });
+    let data;
+    if (operation === 'DELETE') {
+      data = await RecipeService.delete(id, token);
+    } else if (operation === 'PATCH') {
+      const body = await request.json();
+      data = await RecipeService.update(id, body, token);
+    }
 
-    if (apiRes.status === 204) {
+    // Invalidate the cache for the 'recipes' tag
+    revalidateTag('recipes');
+
+    if (data === null) {
       return new NextResponse(null, { status: 204 });
     }
 
-    const text = await apiRes.text();
-    const data = text ? JSON.parse(text) : null;
-
-    return NextResponse.json(data, { status: apiRes.status });
+    return NextResponse.json(data, { status: 200 });
 
   } catch (error) {
-    return NextResponse.json({ message: 'Error interno del servidor', error: error.message }, { status: 500 });
+    const status = error.status || 500;
+    return NextResponse.json(
+      { message: error.message || 'Error interno del servidor', error: error.message },
+      { status }
+    );
   }
 }
 
 export async function PATCH(request, { params }) {
   const { id } = await params;
-  return protectedRequest(request, `/recipes/${id}`);
+  return protectedRequest(request, 'PATCH', id);
 }
 
 export async function DELETE(request, { params }) {
   const { id } = await params;
-  return protectedRequest(request, `/recipes/${id}`);
+  return protectedRequest(request, 'DELETE', id);
 }

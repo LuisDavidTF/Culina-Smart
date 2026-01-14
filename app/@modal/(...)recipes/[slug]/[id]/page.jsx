@@ -107,7 +107,16 @@ export default function RecipeInterceptModal({ params }) {
         }
     };
 
-    const isOwner = user && recipe && user.id === recipe.user_id;
+    const normalize = (str) => String(str || '').trim().toLowerCase();
+
+    const isOwner = user && recipe && (
+        (user.id && recipe.user_id && String(user.id) === String(recipe.user_id)) ||
+        (user.name && (
+            normalize(user.name) === normalize(recipe.authorName) ||
+            normalize(user.name) === normalize(recipe.author_name) ||
+            normalize(user.name) === normalize(recipe.user?.name)
+        ))
+    );
 
     return (
         <>
@@ -128,7 +137,11 @@ export default function RecipeInterceptModal({ params }) {
                         {/* Re-implementamos los botones que estaban en tu modal original */}
                         {isOwner && (
                             <div className="border-t mt-6 pt-4 flex gap-4">
-                                <Button variant="secondary" onClick={handleEdit} className="flex-1">
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleEdit}
+                                    className="flex-1"
+                                >
                                     <EditIcon className="w-4 h-4 mr-2" /> {t.common.edit}
                                 </Button>
                                 <Button variant="danger" onClick={handleDelete} className="flex-1">
@@ -167,7 +180,7 @@ function RecipeDetailContent({ recipe, t }) {
         <>
             {/* Visual Stability: Definir aspect-ratio o altura fija evita saltos de layout si la imagen tarda en cargar */}
             <SmartImage
-                src={recipe.image_url || `https://placehold.co/600x400?text=${placeholderText}`}
+                src={recipe.imageUrl || `https://placehold.co/600x400?text=${placeholderText}`}
                 alt={recipe.name}
                 className="w-full h-64 object-cover rounded-lg mb-4 bg-gray-100 dark:bg-gray-700"
             />
@@ -175,8 +188,8 @@ function RecipeDetailContent({ recipe, t }) {
             <p className="text-gray-700 dark:text-gray-300 mb-4 text-sm leading-relaxed">{recipe.description}</p>
 
             <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
-                <p><span className="font-bold text-gray-900 dark:text-gray-100">{t.recipe.timeLabel}</span> {recipe.preparation_time_minutes} min</p>
-                <p><span className="font-bold text-gray-900 dark:text-gray-100">{t.recipe.byLabel}</span> {recipe.user?.name || t.recipe.chef}</p>
+                <p><span className="font-bold text-gray-900 dark:text-gray-100">{t.recipe.timeLabel}</span> {recipe.preparationTimeMinutes} min</p>
+                <p><span className="font-bold text-gray-900 dark:text-gray-100">{t.recipe.byLabel}</span> {recipe.authorName || recipe.user?.name || t.recipe.chef}</p>
             </div>
 
             {/* --- INGREDIENTES --- */}
@@ -186,7 +199,7 @@ function RecipeDetailContent({ recipe, t }) {
                 {recipe.ingredients?.length > 0 ? (
                     recipe.ingredients.map((ing, i) => (
                         <li key={ing.id || i}>
-                            <span className="font-medium">{ing.quantity} {ing.unit_of_measure}</span> {ing.ingredient.name}
+                            <span className="font-medium">{ing.quantity} {ing.unitOfMeasure || ing.unit_of_measure}</span> {ing.name || ing.ingredient?.name}
                         </li>
                     ))
                 ) : (

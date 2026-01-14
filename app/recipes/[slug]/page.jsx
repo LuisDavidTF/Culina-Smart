@@ -2,38 +2,14 @@ import { permanentRedirect, notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import { slugify } from '@utils/slugify';
 
+import { RecipeService } from '@/lib/services/recipes';
+
 async function getRecipe(id) {
-    let apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    if (!apiUrl || apiUrl.startsWith('/')) {
-        try {
-            const headersList = await headers();
-            const host = headersList.get('host');
-            const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
-            apiUrl = `${protocol}://${host}`;
-        } catch (e) {
-            console.warn("Could not determine host from headers", e);
-        }
-    }
-
-    if (!apiUrl) return null;
-
     try {
-        let endpoint = `/api/recipes/${id}`;
-        if (apiUrl.includes('/api/v1')) {
-            endpoint = `/recipes/${id}`;
-        }
-
-        const res = await fetch(`${apiUrl}${endpoint}`, {
-            next: { revalidate: 3600 }
-        });
-
-        if (!res.ok) return null;
-
-        const data = await res.json();
-        return data.data || data;
+        const recipe = await RecipeService.getById(id);
+        return recipe;
     } catch (error) {
-        console.error("Error fetching recipe:", error);
+        // If 404 or invalid ID, return null
         return null;
     }
 }

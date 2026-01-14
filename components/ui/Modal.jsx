@@ -6,7 +6,7 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4 transition-opacity duration-300"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4 transition-opacity duration-300"
       onClick={onClose}
     >
       <div
