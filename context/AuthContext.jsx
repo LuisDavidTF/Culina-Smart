@@ -78,9 +78,22 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const register = useCallback(async (name, email, password, passwordConfirmation) => {
-    // Direct call to AuthService for Register (no cookie needed immediately, usually auto-login follows or redirect)
-    // We strip passwordConfirmation to match API schema
-    const data = await AuthService.register({ name, email, password });
+    // Call our internal Next.js API route which proxies to the backend
+    const res = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw {
+        message: data.message || 'Error en el registro',
+        status: res.status
+      };
+    }
+
     return data;
   }, []);
 
