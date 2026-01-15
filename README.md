@@ -1,116 +1,87 @@
 # Smart Recipe Planner
 
-Smart Recipe Planner is a web application that helps users plan their meals and generate recipes using artificial intelligence.
+Smart Recipe Planner is a modern, AI-powered web application that helps users discover, plan, and create recipes. Built with the latest web technologies, it offers a seamless experience across all devices with full PWA (Progressive Web App) support.
 
 ## Features
 
-*   **User Authentication:** Secure user registration, login, and logout functionality.
-*   **Recipe Management:** Users can create, view, update, and delete their own recipes.
-*   **AI-Powered Recipe Generation:** Generate new and creative recipes based on user prompts.
-*   **Interactive Recipe Feed:** Browse a dynamic feed of recipes from all users.
-*   **Modal Views:** View recipe details in a non-intrusive modal window for a seamless experience.
-*   **Responsive Design:** A user-friendly interface that works on all devices.
+*   **AI-Powered Chef:** Generate creative recipes tailored to your preferences using advanced AI (Backend Integration).
+*   **PWA Support:** Installable on mobile and desktop with offline capabilities.
+*   **Modern UI/UX:** A premium, responsive design featuring a "Modern Rustic" aesthetic with dark mode support.
+*   **Recipe Management:** Create, edit, and organize your favorite recipes.
+*   **Smart Search:** Filter recipes by ingredients, categories, and more.
+*   **Legal Compliance:** Integrated Privacy Policy, Terms of Service, and Cookie Consent.
+*   **SEO Optimized:** Fully optimized for search engines with dynamic sitemaps and metadata.
 
 ## Tech Stack
 
-*   **Framework:** [Next.js](https://nextjs.org/)
-*   **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-*   **AI:** [Google Generative AI](https://ai.google.dev/)
-*   **Authentication:** JWT (implemented using cookies)
+*   **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+*   **Core:** [React 19](https://react.dev/)
+*   **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
+*   **Language:** JavaScript / TypeScript
+*   **Icons:** Heroicons
 
 ## Getting Started
 
-To get a local copy up and running, follow these simple steps.
+Follow these steps to set up the project locally.
 
 ### Prerequisites
 
-*   Node.js (v20 or later)
-*   npm
+*   Node.js (v20 or later recommended)
+*   npm or yarn
 
 ### Installation
 
-1.  Clone the repo
+1.  Clone the repository:
     ```sh
-    git clone https://github.com/your_username/smart-recipe-planner-app.git
+    git clone https://github.com/LuisDavidTF/smart-recipe-planner.git
+    cd smart-recipe-planner
     ```
-2.  Install NPM packages
+
+2.  Install dependencies:
     ```sh
     npm install
     ```
 
-### Running the Application
+3.  Configure Environment Variables:
+    Create a `.env.local` file in the root directory:
+    ```sh
+    NEXT_PUBLIC_API_URL="your_api_url"
+    NEXT_PUBLIC_BASE_URL="your_base_url"
+    ```
 
-1.  Create a `.env.local` file in the root of the project and add the following environment variables:
-    ```
-    GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
-    JWT_SECRET="YOUR_JWT_SECRET"
-    ```
-2.  Run the development server
+4.  Run the development server:
     ```sh
     npm run dev
     ```
-3.  Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## API Endpoints
-
-The following API endpoints are available:
-
-*   `POST /api/generate-recipe`: Generates a new recipe using AI.
-*   `POST /api/login`: Logs in a user.
-*   `POST /api/logout`: Logs out a user.
-*   `GET /api/me`: Retrieves the currently logged-in user.
-*   `GET /api/recipes`: Retrieves a list of all recipes.
-*   `POST /api/recipes`: Creates a new recipe.
-*   `GET /api/recipes/[id]`: Retrieves a single recipe by its ID.
-*   `PUT /api/recipes/[id]`: Updates a recipe by its ID.
-*   `DELETE /api/recipes/[id]`: Deletes a recipe by its ID.
+5.  Open [your_base_url](your_base_url) in your browser.
 
 ## Project Structure
 
 ```
-smart-recipe-planner-app/
+smart-recipe-planner/
 ├── app/
-│   ├── api/                # API routes
-│   │   ├── generate-recipe/
-│   │   ├── login/
-│   │   ├── logout/
-│   │   ├── me/
-│   │   └── recipes/
-│   ├── @modal/             # Intercepted routes for modal views
-│   ├── create-recipe/      # Page for creating new recipes
-│   ├── edit-recipe/        # Page for editing existing recipes
-│   ├── recipes/            # Pages for displaying recipes
-│   ├── layout.jsx          # Root layout
-│   └── page.jsx            # Home page
+│   ├── api/                # API proxies/routes
+│   ├── recipes/            # Recipe pages
+│   ├── privacy/            # Legal pages
+│   ├── layout.jsx          # Root layout with providers
+│   └── page.jsx            # Landing page
 ├── components/
-│   ├── auth/               # Authentication-related components
-│   ├── recipes/            # Recipe-related components
-│   └── ui/                 # General UI components
-├── context/
-│   ├── AuthContext.jsx     # Context for managing authentication state
-│   └── ToastContext.jsx    # Context for displaying toast notifications
-├── hooks/
-│   └── useApiClient.js     # Custom hook for making API requests
+│   ├── recipes/            # Recipe cards, feed, and forms
+│   ├── ui/                 # Reusable UI library (Modal, Buttons, etc.)
+│   └── auth/               # Authentication forms
 ├── lib/
-│   └── apiClient.js        # API client setup
-└── ...
+│   └── services/           # API service layer
+├── hooks/                  # Custom React hooks (useRecipeFeed, etc.)
+└── public/                 # Static assets (PWA icons, manifests)
 ```
-
-## Key Components
-
-*   **`AuthForm`**: Handles both login and registration forms.
-*   **`RecipeCard`**: Displays a summary of a recipe in the feed.
-*   **`RecipeFeed`**: Fetches and displays a list of all recipes.
-*   **`RecipeForm`**: A form for creating and editing recipes.
-*   **`Modal`**: A reusable modal component for displaying content like recipe details.
-*   **`Navbar`**: The main navigation bar for the application.
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+1.  Fork the project
+2.  Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the branch (`git push origin feature/AmazingFeature`)
 5.  Open a Pull Request
