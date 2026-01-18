@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { AuthForm } from '@components/auth/AuthForm';
 
 export const metadata = {
@@ -9,5 +10,9 @@ export const metadata = {
 };
 
 export default function LoginPage() {
-  return <AuthForm isRegister={false} />;
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Cargando...</div>}>
+      <AuthForm isRegister={false} />
+    </Suspense>
+  );
 }
