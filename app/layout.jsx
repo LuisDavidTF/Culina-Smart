@@ -23,6 +23,7 @@ export const metadata = {
     template: '%s | Culina Smart',
     default: 'Culina Smart - Planificador de Recetas Social',
   },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://culinasmart.vercel.app'),
   description: "Planifica tus comidas de manera inteligente y eficiente.",
   manifest: "/manifest.json",
   formatDetection: {
