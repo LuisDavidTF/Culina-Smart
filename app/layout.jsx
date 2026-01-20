@@ -10,8 +10,6 @@ import { Footer } from '@components/ui/Footer';
 import { CookieConsent } from '@components/ui/CookieConsent';
 
 
-export const runtime = 'edge';
-
 // Performance: Load Inter font with swap strategy to ensure text visibility during load
 const inter = Inter({
   subsets: ['latin'],

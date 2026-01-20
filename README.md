@@ -76,6 +76,24 @@ smart-recipe-planner/
 └── public/                 # Static assets (PWA icons, manifests)
 ```
 
+## Deployment
+
+### Vercel
+The project is fully compatible with Vercel.
+1. Connect your repository to Vercel.
+2. Vercel will automatically detect the Next.js project.
+3. Ensure your Environment Variables are set in the Vercel Dashboard.
+
+### Cloudflare Pages
+To deploy to Cloudflare Pages:
+1. Connect your repository to Cloudflare Pages.
+2. Go to **Settings > Builds & deployments > Build configuration**:
+   - **Build command**: `npm run pages:build`
+   - **Build output directory**: `.vercel/output/static`
+3. Go to **Settings > Functions > Compatibility Flags**:
+   - Add `nodejs_compat` flag.
+4. Add your Environment Variables in **Settings > Environment variables**.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
