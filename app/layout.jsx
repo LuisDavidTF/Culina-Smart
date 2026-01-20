@@ -56,7 +56,7 @@ export const preferredRegion = 'iad1'; // Vercel Edge region preference
 
 export default function RootLayout({ children, modal }) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es" className={inter.variable} suppressHydrationWarning>
       <body className="min-h-screen font-sans antialiased bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         {process.env.NEXT_PUBLIC_ENABLE_ADS === 'true' && (
           <Script

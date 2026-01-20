@@ -16,9 +16,7 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
   const normalize = (str) => String(str || '').trim().toLowerCase();
 
   if (user) {
-    console.log(`[RecipeCard Debug] Recipe: ${recipe.name}`);
-    console.log(`  - User: ID=${user.id}, Name=${user.name}`);
-    console.log(`  - Recipe: UserID=${recipe.user_id}, AuthorName=${recipe.authorName}, Author_Name=${recipe.author_name}, User.Name=${recipe.user?.name}`);
+    // Debug info removed
   }
 
   const isOwner = user && (
@@ -105,7 +103,7 @@ export function RecipeCard({ recipe, viewHref, onEdit, onDelete }) {
           <Link
             href={viewHref}
             scroll={false}
-            className="w-full inline-flex items-center justify-center bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn"
+            className="w-full inline-flex items-center justify-center bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 group/btn relative z-20"
           >
             {t.feed.view}
             <svg className="w-4 h-4 ml-2 transform group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
