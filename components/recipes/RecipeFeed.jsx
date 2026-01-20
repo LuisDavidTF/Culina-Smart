@@ -11,6 +11,7 @@ import { slugify } from '@utils/slugify';
 
 // Components
 import { RecipeCard } from '@components/recipes/RecipeCard';
+import { NativeAdCard } from '@components/ads/NativeAdCard';
 import { Modal } from '@components/ui/Modal';
 import { Button } from '@components/ui/Button';
 import { Spinner } from '@components/ui/Spinner';
@@ -125,15 +126,25 @@ export function RecipeFeed({ initialData = null }) {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
-            {recipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-                viewHref={`/recipes/${slugify(recipe.name)}/${recipe.id}`}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            ))}
+            {recipes.map((recipe, index) => {
+              // Insert Ad every 6 items (index 5, 11, 17...)
+              // 0-based index: 5 is the 6th item.
+              const shouldShowAd = (index > 0) && (index + 1) % 6 === 0;
+
+              return (
+                <React.Fragment key={recipe.id}>
+                  <RecipeCard
+                    recipe={recipe}
+                    viewHref={`/recipes/${slugify(recipe.name)}/${recipe.id}`}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                  />
+                  {shouldShowAd && (
+                    <NativeAdCard />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         )
       }
