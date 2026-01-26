@@ -55,3 +55,7 @@ public/sw.js
 public/sw.js.map
 public/workbox-*
 public/fallback-*
+
+# playwright
+/playwright-report/
+/test-results/
